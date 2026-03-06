@@ -1379,7 +1379,7 @@
                 let seg = [];
                 for (let c = 0; c <= COLS; c++) {
                     if (c < COLS && grid[r][c] === EMPTY) { seg.push(c); }
-                    else if (seg.length) { if (seg.length <= 5) hints.push(seg.map((_, i) => [0, i])); seg = []; }
+                    else if (seg.length) { if (seg.length >= 3 && seg.length <= 5) hints.push(seg.map((_, i) => [0, i])); seg = []; }
                 }
             }
             for (let c = 0; c < COLS; c++) {
@@ -1388,7 +1388,7 @@
                 let seg = [];
                 for (let r = 0; r <= ROWS; r++) {
                     if (r < ROWS && grid[r][c] === EMPTY) { seg.push(r); }
-                    else if (seg.length) { if (seg.length <= 5) hints.push(seg.map((_, i) => [i, 0])); seg = []; }
+                    else if (seg.length) { if (seg.length >= 3 && seg.length <= 5) hints.push(seg.map((_, i) => [i, 0])); seg = []; }
                 }
             }
             return hints.length ? hints[Math.floor(Math.random() * hints.length)] : null;

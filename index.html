@@ -743,9 +743,9 @@
         }
 
         let sfxVolume = 1.0, musicVolume = 0.6;
-        let musicGain = null, musicStarted = false, musicScheduler = null;
-        let musicOscs = [], chordIdx = 0;
+        let seqTimeoutIds = [];
 
+        // ── AUDIO EFFECTS ────────────────────────────────────────────────
         function playPop(count = 1) {
             if (sfxVolume === 0) return;
             const ac = getAudioCtx(), n = Math.min(count, 6);
@@ -777,73 +777,6 @@
             g.gain.exponentialRampToValueAtTime(.001, t + .1);
             osc.connect(g); g.connect(ac.destination);
             osc.start(t); osc.stop(t + .11);
-        }
-
-        // ── LO-FI SEQUENCER ──────────────────────────────────────────────
-        // BPM=80. Beat=0.75s. Bar=3s (4 beats). Pattern=8 bars.
-        // Chord prog (I–V–vi–IV in C): Cmaj7, G7, Am7, Fmaj7
-        const SEQ_BPM = 80;
-        const BEAT = 60 / SEQ_BPM;          // 0.75 s
-        const BAR = BEAT * 4;              // 3 s
-
-        // [root, third, fifth, seventh] in Hz — one octave lower for bass
-        const CHORD_NOTES = [
-            [130.81, 164.81, 196.00, 246.94],  // C3maj7  (I)
-            [146.83, 184.99, 220.00, 261.63],  // D3m7   (ii)
-            [164.81, 196.00, 246.94, 293.66],  // E3m7   (iii)
-            [174.61, 220.00, 261.63, 329.63],  // F3maj7 (IV)
-            [196.00, 246.94, 293.66, 369.99],  // G3dom7 (V)
-            [110.00, 138.59, 164.81, 207.65],  // A2m7   (vi)
-        ];
-        // 8-bar progression indices into CHORD_NOTES
-        const PROGRESSION = [0, 0, 3, 3, 4, 4, 5, 3];
-        // Melody arpeggio pattern (semitone offsets from chord root, in 8th notes per bar)
-        const MELODY_PAT = [0, 7, 12, 7, 4, 7, 12, 4]; // 8 eighth notes per bar
-
-        let seqBar = 0, seqTimeoutIds = [];
-
-        function makeOsc(ac, type, freq, gainNode, startT, stopT, vol, attack, release) {
-            const osc = ac.createOscillator(), g = ac.createGain();
-            osc.type = type;
-            osc.frequency.value = freq;
-            g.gain.setValueAtTime(0, startT);
-            g.gain.linearRampToValueAtTime(vol, startT + attack);
-            g.gain.setValueAtTime(vol, stopT - release);
-            g.gain.linearRampToValueAtTime(0, stopT);
-            osc.connect(g); g.connect(gainNode);
-            osc.start(startT); osc.stop(stopT + 0.02);
-            musicOscs.push(osc);
-        }
-
-        function noteFreq(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
-
-        function scheduleBar(startTime) {
-            if (!musicStarted) return;
-            const ac = getAudioCtx();
-            const chordNotes = CHORD_NOTES[PROGRESSION[seqBar % PROGRESSION.length]];
-
-            // Pad — whole bar, all chord tones softly
-            chordNotes.forEach((freq, i) => {
-                makeOsc(ac, 'sine', freq * 2, musicGain, startTime, startTime + BAR * 0.95, 0.18 - i * 0.03, 0.4, 0.3);
-                makeOsc(ac, 'triangle', freq * 2 * 1.004, musicGain, startTime, startTime + BAR * 0.95, 0.05, 0.5, 0.3);
-            });
-
-            // Bass — root on beat 1, fifth on beat 3
-            const bass = chordNotes[0];
-            makeOsc(ac, 'sine', bass, musicGain, startTime, startTime + BEAT * 0.85, 0.38, 0.02, 0.1);
-            makeOsc(ac, 'sine', bass * 1.5, musicGain, startTime + BEAT * 2, startTime + BEAT * 2.85, 0.28, 0.02, 0.1);
-
-            // Melody arpeggio — eighth notes
-            const rootMidi = Math.round(12 * Math.log2(bass / 32.70) + 24); // bass root → midi
-            MELODY_PAT.forEach((semis, i) => {
-                const t = startTime + i * (BEAT / 2);
-                const freq = noteFreq(rootMidi + 24 + semis); // two octaves up
-                makeOsc(ac, 'sine', freq, musicGain, t, t + BEAT * 0.38, 0.11, 0.01, 0.08);
-            });
-
-            seqBar++;
-            const tid = setTimeout(() => scheduleBar(ac.currentTime), (BAR - 0.05) * 1000);
-            seqTimeoutIds.push(tid);
         }
 
         // ── LOCAL MUSIC ────────────────────────────────────────────────

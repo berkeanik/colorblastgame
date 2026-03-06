@@ -1372,10 +1372,10 @@
             }
             return hints.length ? hints[Math.floor(Math.random() * hints.length)] : null;
         }
-        // Weighted random shape selection (fewer 1x1, 1x2, 2x1)
+        // Weighted random shape selection (very rare 1x1, 1x2, 2x1)
         function randomPiece() {
-            // Assign weight 1 to small pieces, weight 4 to larger pieces
-            const weights = SHAPES.map(s => (s.length <= 2) ? 1 : 4);
+            // Assign weight 1 to small pieces, weight 50 to larger pieces
+            const weights = SHAPES.map(s => (s.length <= 2) ? 1 : 50);
             const totalWeight = weights.reduce((sum, w) => sum + w, 0);
             let rd = Math.random() * totalWeight;
             let si = 0;

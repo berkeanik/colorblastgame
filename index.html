@@ -612,6 +612,11 @@
             pointer-events: none;
             /* So it doesn't block touches if it overlaps something */
         }
+
+        #menuScreen.active~#profileImage,
+        #settingsScreen.active~#profileImage {
+            display: none !important;
+        }
     </style>
 </head>
 

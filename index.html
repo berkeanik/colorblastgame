@@ -981,7 +981,7 @@
         const particleCanvas = document.getElementById('particleCanvas');
         const ctx = gridCanvas.getContext('2d'), pctx = particleCanvas.getContext('2d');
         let CELL = 44;
-        const IS_MOBILE = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 600;
+
 
         function resizeCanvases() {
             const wrap = document.getElementById('gameWrap');
@@ -1055,11 +1055,9 @@
             const r = size * BR;
             context.globalAlpha = alpha;
 
-            if (!IS_MOBILE) {
-                // Desktop: full glow shadow
-                context.shadowColor = colorHex;
-                context.shadowBlur = 10;
-            }
+            // Full glow shadow
+            context.shadowColor = colorHex;
+            context.shadowBlur = 10;
 
             const grad = getGrad(context, x, y, size, colorHex);
             context.fillStyle = grad;
@@ -1067,21 +1065,14 @@
             context.fill();
             context.shadowBlur = 0;
 
-            if (IS_MOBILE) {
-                // Mobile: cheap colored stroke instead of shadow (fast)
-                context.strokeStyle = lighten(colorHex, .4);
-                context.lineWidth = 1.5;
-                roundRect(context, x + 1, y + 1, size - 2, size - 2, r);
-                context.stroke();
-            } else {
-                // Desktop: shine overlay
-                const shine = context.createLinearGradient(x, y, x, y + size * .5);
-                shine.addColorStop(0, 'rgba(255,255,255,.22)');
-                shine.addColorStop(1, 'rgba(255,255,255,0)');
-                context.fillStyle = shine;
-                roundRect(context, x + 1, y + 1, size - 2, size - 2, r);
-                context.fill();
-            }
+            // Shine overlay
+            const shine = context.createLinearGradient(x, y, x, y + size * .5);
+            shine.addColorStop(0, 'rgba(255,255,255,.22)');
+            shine.addColorStop(1, 'rgba(255,255,255,0)');
+            context.fillStyle = shine;
+            roundRect(context, x + 1, y + 1, size - 2, size - 2, r);
+            context.fill();
+
             context.globalAlpha = 1;
             context.shadowBlur = 0;
         }
@@ -1388,9 +1379,14 @@
         }
         function spawnTray() {
             trayPieces = [0, 1, 2].map(i => {
-                if (i === 1 && Math.random() < 0.40) {
+                // Agresif smart spawn sistemi (çok daha sık yardımcı parça verir)
+                const chance = i === 0 ? 0.80 : (i === 1 ? 0.40 : 0.20);
+                if (Math.random() < chance) {
                     const hs = findHelpfulShape();
-                    if (hs) { const ci = Math.floor(Math.random() * COLORS.length); return { shape: hs, color: COLORS[ci], colorIdx: ci }; }
+                    if (hs) {
+                        const ci = Math.floor(Math.random() * COLORS.length);
+                        return { shape: hs, color: COLORS[ci], colorIdx: ci };
+                    }
                 }
                 return randomPiece();
             });

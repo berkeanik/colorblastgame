@@ -759,7 +759,7 @@
                 osc.frequency.exponentialRampToValueAtTime(freq * 1.7, t + .07);
                 osc.frequency.exponentialRampToValueAtTime(freq * .85, t + .16);
                 g.gain.setValueAtTime(0, t);
-                g.gain.linearRampToValueAtTime(sfxVolume * .32, t + .025);
+                g.gain.linearRampToValueAtTime(sfxVolume * .6, t + .025); // Increased from .32 to .6
                 g.gain.exponentialRampToValueAtTime(.001, t + .19);
                 osc.connect(g); g.connect(ac.destination);
                 osc.start(t); osc.stop(t + .2);
@@ -773,7 +773,7 @@
             osc.type = 'sine';
             osc.frequency.setValueAtTime(190, t);
             osc.frequency.exponentialRampToValueAtTime(270, t + .05);
-            g.gain.setValueAtTime(sfxVolume * .18, t);
+            g.gain.setValueAtTime(sfxVolume * .4, t); // Increased from .18 to .4
             g.gain.exponentialRampToValueAtTime(.001, t + .1);
             osc.connect(g); g.connect(ac.destination);
             osc.start(t); osc.stop(t + .11);

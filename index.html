@@ -596,6 +596,22 @@
                 display: none !important
             }
         }
+
+        #profileImage {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            pointer-events: none;
+            /* So it doesn't block touches if it overlaps something */
+        }
     </style>
 </head>
 
@@ -1484,6 +1500,7 @@
         // Init display
         updateHighScore(highScore);
     </script>
+    <img id="profileImage" src="profile.jpg" alt="Berke Anık" onerror="this.style.display='none'" />
 </body>
 
 </html>
